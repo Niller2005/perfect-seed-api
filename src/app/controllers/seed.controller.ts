@@ -86,11 +86,12 @@ export class SeedController {
   @ValidateBody(seedSchema)
   async createSeed(ctx: Context) {
     const seedCheck = await getRepository(Seed).find({ where: { seed: ctx.request.body.seed } });
-    if (!seedCheck) {
+    if (seedCheck.length === 0) {
       const seed = await getRepository(Seed).save(ctx.request.body);
       return new HttpResponseCreated(seed);
+    } else {
+      return new HttpResponseConflict({ msg: 'Seed already found' });
     }
-    return new HttpResponseConflict({ msg: 'Seed already found' });
   }
 
   @Patch('/:seedId')
