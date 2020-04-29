@@ -27,18 +27,6 @@ const seedSchema = {
   additionalProperties: true,
   properties: {
     seed: { type: 'number', maxLength: 255 },
-    ocean: { type: 'number', maxLength: 255 },
-    desert: { type: 'number', maxLength: 255 },
-    plains: { type: 'number', maxLength: 255 },
-    extremeHills: { type: 'number', maxLength: 255 },
-    jungle: { type: 'number', maxLength: 255 },
-    forest: { type: 'number', maxLength: 255 },
-    roofedForest: { type: 'number', maxLength: 255 },
-    mesa: { type: 'number', maxLength: 255 },
-    swamp: { type: 'number', maxLength: 255 },
-    savanna: { type: 'number', maxLength: 255 },
-    icePlains: { type: 'number', maxLength: 255 },
-    taiga: { type: 'number', maxLength: 255 },
   },
   required: ['seed'],
   type: 'object',
@@ -99,40 +87,11 @@ export class SeedController {
   async createSeed(ctx: Context) {
     const seedCheck = await getRepository(Seed).find({ where: { seed: ctx.request.body.seed } });
     if (seedCheck.length === 0) {
-      const {
-        seed,
-        hut1,
-        hut2,
-        ocean,
-        desert,
-        plains,
-        extremeHills,
-        jungle,
-        forest,
-        roofedForest,
-        mesa,
-        swamp,
-        savanna,
-        icePlains,
-        taiga,
-      }: Seed = ctx.request.body;
+      const { id, ...seed }: Seed = ctx.request.body;
+      console.log(id);
 
-      const newSeed = new Seed();
-      newSeed.seed = seed;
-      newSeed.hut1 = hut1;
-      newSeed.hut2 = hut2;
-      newSeed.ocean = ocean;
-      newSeed.desert = desert;
-      newSeed.plains = plains;
-      newSeed.extremeHills = extremeHills;
-      newSeed.jungle = jungle;
-      newSeed.forest = forest;
-      newSeed.roofedForest = roofedForest;
-      newSeed.mesa = mesa;
-      newSeed.swamp = swamp;
-      newSeed.savanna = savanna;
-      newSeed.icePlains = icePlains;
-      newSeed.taiga = taiga;
+      let newSeed = new Seed();
+      newSeed = seed;
 
       await getRepository(Seed).save(newSeed);
       return new HttpResponseCreated('New seed added');

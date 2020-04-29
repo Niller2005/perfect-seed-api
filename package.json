@@ -25,7 +25,8 @@
     "build:migrations": "foal rmdir build/migrations && tsc -p tsconfig.migrations.json",
     "migration:generate": "./node_modules/.bin/typeorm migration:generate",
     "migration:run": "./node_modules/.bin/typeorm migration:run",
-    "migration:revert": "./node_modules/.bin/typeorm migration:revert"
+    "migration:revert": "./node_modules/.bin/typeorm migration:revert",
+    "setup:dev": "npm run build:app && npm run build:migrations && npm run migration:run"
   },
   "engines": {
     "node": ">=8"
