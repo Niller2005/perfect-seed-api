@@ -24,11 +24,24 @@ import { getRepository } from 'typeorm';
 import { Seed } from '../entities';
 
 const seedSchema = {
-  additionalProperties: false,
+  additionalProperties: true,
   properties: {
     seed: { type: 'number', maxLength: 255 },
+    ocean: { type: 'number', maxLength: 255 },
+    desert: { type: 'number', maxLength: 255 },
+    plains: { type: 'number', maxLength: 255 },
+    extremeHills: { type: 'number', maxLength: 255 },
+    jungle: { type: 'number', maxLength: 255 },
+    forest: { type: 'number', maxLength: 255 },
+    roofedForest: { type: 'number', maxLength: 255 },
+    mesa: { type: 'number', maxLength: 255 },
+    swamp: { type: 'number', maxLength: 255 },
+    savanna: { type: 'number', maxLength: 255 },
+    icePlains: { type: 'number', maxLength: 255 },
+    taiga: { type: 'number', maxLength: 255 },
   },
   required: ['seed'],
+  type: 'object',
 };
 
 @ApiUseTag('seed')
@@ -85,18 +98,46 @@ export class SeedController {
   @ValidateBody(seedSchema)
   async createSeed(ctx: Context) {
     const seedCheck = await getRepository(Seed).find({ where: { seed: ctx.request.body.seed } });
-    console.log(ctx.request.body);
-
-    const { seed } = ctx.request.body;
-
-    const newSeed = new Seed();
-    newSeed.seed = seed;
-
     if (seedCheck.length === 0) {
-      const seed = await getRepository(Seed).save(newSeed);
-      return new HttpResponseCreated(seed);
+      const {
+        seed,
+        hut1,
+        hut2,
+        ocean,
+        desert,
+        plains,
+        extremeHills,
+        jungle,
+        forest,
+        roofedForest,
+        mesa,
+        swamp,
+        savanna,
+        icePlains,
+        taiga,
+      }: Seed = ctx.request.body;
+
+      const newSeed = new Seed();
+      newSeed.seed = seed;
+      newSeed.hut1 = hut1;
+      newSeed.hut2 = hut2;
+      newSeed.ocean = ocean;
+      newSeed.desert = desert;
+      newSeed.plains = plains;
+      newSeed.extremeHills = extremeHills;
+      newSeed.jungle = jungle;
+      newSeed.forest = forest;
+      newSeed.roofedForest = roofedForest;
+      newSeed.mesa = mesa;
+      newSeed.swamp = swamp;
+      newSeed.savanna = savanna;
+      newSeed.icePlains = icePlains;
+      newSeed.taiga = taiga;
+
+      await getRepository(Seed).save(newSeed);
+      return new HttpResponseCreated('New seed added');
     } else {
-      return new HttpResponseConflict({ msg: 'Seed already found' });
+      return new HttpResponseConflict('Seed already found');
     }
   }
 
