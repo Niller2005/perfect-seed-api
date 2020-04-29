@@ -29,7 +29,6 @@ const seedSchema = {
     seed: { type: 'number', maxLength: 255 },
   },
   required: ['seed'],
-  type: 'object',
 };
 
 @ApiUseTag('seed')
@@ -86,8 +85,15 @@ export class SeedController {
   @ValidateBody(seedSchema)
   async createSeed(ctx: Context) {
     const seedCheck = await getRepository(Seed).find({ where: { seed: ctx.request.body.seed } });
+    console.log(ctx.request.body);
+
+    const { seed } = ctx.request.body;
+
+    const newSeed = new Seed();
+    newSeed.seed = seed;
+
     if (seedCheck.length === 0) {
-      const seed = await getRepository(Seed).save(ctx.request.body);
+      const seed = await getRepository(Seed).save(newSeed);
       return new HttpResponseCreated(seed);
     } else {
       return new HttpResponseConflict({ msg: 'Seed already found' });
