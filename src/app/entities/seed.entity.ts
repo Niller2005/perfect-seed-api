@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
 export class Seed {
@@ -7,6 +7,12 @@ export class Seed {
 
   @Column()
   seed: number;
+
+  @Column()
+  huts: number;
+
+  @Column()
+  monuments: number;
 
   @Column({ type: 'float', precision: 10, scale: 6 })
   badlands: number;
@@ -244,4 +250,10 @@ export class Seed {
 
   @Column({ type: 'float', precision: 10, scale: 6 })
   wooded_mountains: number;
+
+  @CreateDateColumn()
+  created_at?: Date;
+
+  @UpdateDateColumn()
+  updated_at?: Date;
 }

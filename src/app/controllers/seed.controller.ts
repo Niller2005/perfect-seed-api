@@ -87,11 +87,11 @@ export class SeedController {
   async createSeed(ctx: Context) {
     const seedCheck = await getRepository(Seed).find({ where: { seed: ctx.request.body.seed } });
     if (seedCheck.length === 0) {
-      const { id, ...seed }: Seed = ctx.request.body;
-      console.log(id);
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      const cloneSeed: Seed = (({ id, created_at, updated_at, ...o }) => o)(ctx.request.body);
 
       let newSeed = new Seed();
-      newSeed = seed;
+      newSeed = cloneSeed;
 
       await getRepository(Seed).save(newSeed);
       return new HttpResponseCreated('New seed added');

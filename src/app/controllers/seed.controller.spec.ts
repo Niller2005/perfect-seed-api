@@ -1,20 +1,23 @@
 // std
-import { notStrictEqual, ok, strictEqual } from 'assert';
-
-// 3p
 import {
-  Context, createController, getHttpMethod, getPath,
-  isHttpResponseCreated, isHttpResponseNoContent,
-  isHttpResponseNotFound, isHttpResponseOK
+  Context,
+  createController,
+  getHttpMethod,
+  getPath,
+  isHttpResponseCreated,
+  isHttpResponseNoContent,
+  isHttpResponseNotFound,
+  isHttpResponseOK,
 } from '@foal/core';
+import { notStrictEqual, ok, strictEqual } from 'assert';
 import { createConnection, getConnection, getRepository } from 'typeorm';
 
-// App
 import { Seed } from '../entities';
 import { SeedController } from './seed.controller';
 
+// 3p
+// App
 describe('SeedController', () => {
-
   let controller: SeedController;
   let seed1: Seed;
   let seed2: Seed;
@@ -28,18 +31,17 @@ describe('SeedController', () => {
 
     const repository = getRepository(Seed);
     await repository.clear();
-    [ seed1, seed2 ] = await repository.save([
+    [seed1, seed2] = await repository.save([
       {
-        text: 'Seed 1'
+        seed: 716815246029,
       },
       {
-        text: 'Seed 2'
+        seed: 721317480667,
       },
     ]);
   });
 
   describe('has a "findSeeds" method that', () => {
-
     it('should handle requests at GET /.', () => {
       strictEqual(getHttpMethod(SeedController, 'findSeeds'), 'GET');
       strictEqual(getPath(SeedController, 'findSeeds'), undefined);
@@ -58,44 +60,42 @@ describe('SeedController', () => {
       }
 
       strictEqual(response.body.length, 2);
-      ok(response.body.find(seed => seed.text === seed1.text));
-      ok(response.body.find(seed => seed.text === seed2.text));
+      ok(response.body.find((seed) => seed.seed === seed1.seed));
+      ok(response.body.find((seed) => seed.seed === seed2.seed));
     });
 
     it('should support pagination', async () => {
       const seed3 = await getRepository(Seed).save({
-        text: 'Seed 3',
+        seed: 703349560977,
       });
 
       let ctx = new Context({
         query: {
-          take: 2
-        }
+          take: 2,
+        },
       });
       let response = await controller.findSeeds(ctx);
 
       strictEqual(response.body.length, 2);
-      ok(response.body.find(seed => seed.id === seed1.id));
-      ok(response.body.find(seed => seed.id === seed2.id));
-      ok(!response.body.find(seed => seed.id === seed3.id));
+      ok(response.body.find((seed) => seed.id === seed1.id));
+      ok(response.body.find((seed) => seed.id === seed2.id));
+      ok(!response.body.find((seed) => seed.id === seed3.id));
 
       ctx = new Context({
         query: {
-          skip: 1
-        }
+          skip: 1,
+        },
       });
       response = await controller.findSeeds(ctx);
 
       strictEqual(response.body.length, 2);
-      ok(!response.body.find(seed => seed.id === seed1.id));
-      ok(response.body.find(seed => seed.id === seed2.id));
-      ok(response.body.find(seed => seed.id === seed3.id));
+      ok(!response.body.find((seed) => seed.id === seed1.id));
+      ok(response.body.find((seed) => seed.id === seed2.id));
+      ok(response.body.find((seed) => seed.id === seed3.id));
     });
-
   });
 
   describe('has a "findSeedById" method that', () => {
-
     it('should handle requests at GET /:seedId.', () => {
       strictEqual(getHttpMethod(SeedController, 'findSeedById'), 'GET');
       strictEqual(getPath(SeedController, 'findSeedById'), '/:seedId');
@@ -104,8 +104,8 @@ describe('SeedController', () => {
     it('should return an HttpResponseOK object if the seed was found.', async () => {
       const ctx = new Context({
         params: {
-          seedId: seed2.id
-        }
+          seedId: seed2.id,
+        },
       });
       const response = await controller.findSeedById(ctx);
 
@@ -114,14 +114,14 @@ describe('SeedController', () => {
       }
 
       strictEqual(response.body.id, seed2.id);
-      strictEqual(response.body.text, seed2.text);
+      strictEqual(response.body.seed, seed2.seed);
     });
 
     it('should return an HttpResponseNotFound object if the seed was not found.', async () => {
       const ctx = new Context({
         params: {
-          seedId: -1
-        }
+          seedId: -1,
+        },
       });
       const response = await controller.findSeedById(ctx);
 
@@ -129,45 +129,44 @@ describe('SeedController', () => {
         throw new Error('The returned value should be an HttpResponseNotFound object.');
       }
     });
-
   });
 
   describe('has a "createSeed" method that', () => {
-
     it('should handle requests at POST /.', () => {
       strictEqual(getHttpMethod(SeedController, 'createSeed'), 'POST');
       strictEqual(getPath(SeedController, 'createSeed'), undefined);
     });
 
-    it('should create the seed in the database and return it through '
-        + 'an HttpResponseCreated object.', async () => {
-      const ctx = new Context({
-        body: {
-          text: 'Seed 3',
+    it(
+      'should create the seed in the database and return it through ' +
+        'an HttpResponseCreated object.',
+      async () => {
+        const ctx = new Context({
+          body: {
+            text: 'Seed 3',
+          },
+        });
+        const response = await controller.createSeed(ctx);
+
+        if (!isHttpResponseCreated(response)) {
+          throw new Error('The returned value should be an HttpResponseCreated object.');
         }
-      });
-      const response = await controller.createSeed(ctx);
 
-      if (!isHttpResponseCreated(response)) {
-        throw new Error('The returned value should be an HttpResponseCreated object.');
+        const seed = await getRepository(Seed).findOne({ seed: 703349560977 });
+
+        if (!seed) {
+          throw new Error('No seed 3 was found in the database.');
+        }
+
+        strictEqual(seed.seed, 703349560977);
+
+        strictEqual(response.body.id, seed.id);
+        strictEqual(response.body.seed, seed.seed);
       }
-
-      const seed = await getRepository(Seed).findOne({ text: 'Seed 3' });
-
-      if (!seed) {
-        throw new Error('No seed 3 was found in the database.');
-      }
-
-      strictEqual(seed.text, 'Seed 3');
-
-      strictEqual(response.body.id, seed.id);
-      strictEqual(response.body.text, seed.text);
-    });
-
+    );
   });
 
   describe('has a "modifySeed" method that', () => {
-
     it('should handle requests at PATCH /:seedId.', () => {
       strictEqual(getHttpMethod(SeedController, 'modifySeed'), 'PATCH');
       strictEqual(getPath(SeedController, 'modifySeed'), '/:seedId');
@@ -176,11 +175,11 @@ describe('SeedController', () => {
     it('should update the seed in the database and return it through an HttpResponseOK object.', async () => {
       const ctx = new Context({
         body: {
-          text: 'Seed 2 (version 2)',
+          seed: 721317480667,
         },
         params: {
-          seedId: seed2.id
-        }
+          seedId: seed2.id,
+        },
       });
       const response = await controller.modifySeed(ctx);
 
@@ -194,10 +193,10 @@ describe('SeedController', () => {
         throw new Error();
       }
 
-      strictEqual(seed.text, 'Seed 2 (version 2)');
+      strictEqual(seed.seed, 'Seed 2 (version 2)');
 
       strictEqual(response.body.id, seed.id);
-      strictEqual(response.body.text, seed.text);
+      strictEqual(response.body.seed, seed.seed);
     });
 
     it('should not update the other seeds.', async () => {
@@ -206,8 +205,8 @@ describe('SeedController', () => {
           text: 'Seed 2 (version 2)',
         },
         params: {
-          seedId: seed2.id
-        }
+          seedId: seed2.id,
+        },
       });
       await controller.modifySeed(ctx);
 
@@ -226,8 +225,8 @@ describe('SeedController', () => {
           text: '',
         },
         params: {
-          seedId: -1
-        }
+          seedId: -1,
+        },
       });
       const response = await controller.modifySeed(ctx);
 
@@ -235,11 +234,9 @@ describe('SeedController', () => {
         throw new Error('The returned value should be an HttpResponseNotFound object.');
       }
     });
-
   });
 
   describe('has a "replaceSeed" method that', () => {
-
     it('should handle requests at PUT /:seedId.', () => {
       strictEqual(getHttpMethod(SeedController, 'replaceSeed'), 'PUT');
       strictEqual(getPath(SeedController, 'replaceSeed'), '/:seedId');
@@ -251,8 +248,8 @@ describe('SeedController', () => {
           text: 'Seed 2 (version 2)',
         },
         params: {
-          seedId: seed2.id
-        }
+          seedId: seed2.id,
+        },
       });
       const response = await controller.replaceSeed(ctx);
 
@@ -278,8 +275,8 @@ describe('SeedController', () => {
           text: 'Seed 2 (version 2)',
         },
         params: {
-          seedId: seed2.id
-        }
+          seedId: seed2.id,
+        },
       });
       await controller.replaceSeed(ctx);
 
@@ -298,8 +295,8 @@ describe('SeedController', () => {
           text: '',
         },
         params: {
-          seedId: -1
-        }
+          seedId: -1,
+        },
       });
       const response = await controller.replaceSeed(ctx);
 
@@ -307,11 +304,9 @@ describe('SeedController', () => {
         throw new Error('The returned value should be an HttpResponseNotFound object.');
       }
     });
-
   });
 
   describe('has a "deleteSeed" method that', () => {
-
     it('should handle requests at DELETE /:seedId.', () => {
       strictEqual(getHttpMethod(SeedController, 'deleteSeed'), 'DELETE');
       strictEqual(getPath(SeedController, 'deleteSeed'), '/:seedId');
@@ -320,8 +315,8 @@ describe('SeedController', () => {
     it('should delete the seed and return an HttpResponseNoContent object.', async () => {
       const ctx = new Context({
         params: {
-          seedId: seed2.id
-        }
+          seedId: seed2.id,
+        },
       });
       const response = await controller.deleteSeed(ctx);
 
@@ -337,8 +332,8 @@ describe('SeedController', () => {
     it('should not delete the other seeds.', async () => {
       const ctx = new Context({
         params: {
-          seedId: seed2.id
-        }
+          seedId: seed2.id,
+        },
       });
       const response = await controller.deleteSeed(ctx);
 
@@ -354,8 +349,8 @@ describe('SeedController', () => {
     it('should return an HttpResponseNotFound if the seed was not fond.', async () => {
       const ctx = new Context({
         params: {
-          seedId: -1
-        }
+          seedId: -1,
+        },
       });
       const response = await controller.deleteSeed(ctx);
 
@@ -363,7 +358,5 @@ describe('SeedController', () => {
         throw new Error('The returned value should be an HttpResponseNotFound object.');
       }
     });
-
   });
-
 });
