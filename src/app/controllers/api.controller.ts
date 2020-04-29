@@ -1,10 +1,11 @@
-import { Context, Get, HttpResponseOK } from '@foal/core';
+import { ApiInfo, controller } from '@foal/core';
 
+import { SeedController } from './seed.controller';
+
+@ApiInfo({
+  title: 'Minecraft Perfect Seed Finder',
+  version: '1.0.0',
+})
 export class ApiController {
-
-  @Get('/')
-  index(ctx: Context) {
-    return new HttpResponseOK('Hello world!');
-  }
-
+  subControllers = [controller('/seeds', SeedController)];
 }

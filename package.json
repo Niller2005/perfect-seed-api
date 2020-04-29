@@ -32,10 +32,11 @@
   },
   "dependencies": {
     "@foal/core": "^1.0.0",
-    "@foal/typeorm": "^1.0.0",
+    "@foal/swagger": "^1.7.1",
+    "@foal/typeorm": "^1.7.1",
     "source-map-support": "^0.5.1",
     "sqlite3": "^4.0.0",
-    "typeorm": "^0.2.6"
+    "typeorm": "^0.2.24"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.1",
