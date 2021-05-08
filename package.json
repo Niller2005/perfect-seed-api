@@ -37,7 +37,7 @@
     "@foal/typeorm": "^1.7.1",
     "source-map-support": "^0.5.1",
     "sqlite3": "^4.0.0",
-    "typeorm": "^0.2.24",
+    "typeorm": "^0.2.25",
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
